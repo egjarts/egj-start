@@ -1,0 +1,15 @@
+{
+  "authentication": {
+    "provider": {
+      "token": {
+        "secret": "",
+        "issuer": "",
+        "audiece": ""
+      },
+      "google": {
+        "clientId": "",
+        "clientSecret": ""
+      }
+    }
+  }
+}

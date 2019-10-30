@@ -1,0 +1,33 @@
+{
+  "name": "start",
+  "version": "0.1.0",
+  "description": "E&GJ Start Page",
+  "repository": "https://github.com/egjarts/start",
+  "scripts": {
+    "test": "test",
+    "dev-server": "nodemon server",
+    "dev-client": "npm start --prefix client"
+  },
+  "author": "Brian James Lewis",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "config": "^3.2.4",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "express-validator": "^5.3.1",
+    "googleapis": "^44.0.0",
+    "helmet": "^3.21.2",
+    "mongoose": "^5.7.7",
+    "morgan": "^1.9.1",
+    "passport": "^0.4.0",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-jwt": "^4.0.0",
+    "request": "^2.88.0"
+  },
+  "devDependencies": {
+    "concurrently": "^5.0.0",
+    "install-peers": "^1.0.3",
+    "nodemon": "^1.19.4"
+  }
+}
