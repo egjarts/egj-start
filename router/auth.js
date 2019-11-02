@@ -1,7 +1,10 @@
 const express = require('express');
 const router = express.Router();
+const bodyParser = require('body-parser');
 const authenticate = require('../authentication/authenticate');
 const Token = require('../authentication/token');
+
+router.use(bodyParser.json());
 
 router.get('/start/:provider', authenticate);
 

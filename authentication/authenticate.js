@@ -1,6 +1,19 @@
-const passport = require('passport');
+const jwt = require('jsonwebtoken');
+const config = require('config');
 
-module.exports = function(request, response, next) {
+module.exports = async function(request, response, next) {
+  // first look for a token in the request header, since that's
+  // where it will be if the user has already been authenticated
+  var token = request.header('x-auth-token');
+
+  // if there wasn't one, check to see if there's a token in the
+  // request body instead
+  if (!token) {
+    token = request.body;
+  }
+
+  
+
   const provider = request.params['provider'] || 'jwt';
   if (provider == 'token') provider = 'jwt';
 

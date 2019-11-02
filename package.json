@@ -5,8 +5,9 @@
   "repository": "https://github.com/egjarts/start",
   "scripts": {
     "test": "test",
-    "dev-server": "nodemon server",
-    "dev-client": "npm start --prefix client"
+    "server": "nodemon server",
+    "client": "npm start --prefix client",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
   },
   "author": "Brian James Lewis",
   "license": "UNLICENSED",
@@ -21,6 +22,7 @@
     "mongoose": "^5.7.7",
     "morgan": "^1.9.1",
     "passport": "^0.4.0",
+    "passport-google-id-token": "^0.4.6",
     "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.0",
     "request": "^2.88.0"
