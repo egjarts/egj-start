@@ -1,36 +1,29 @@
-import * as Actions from "../actions";
+import * as Actions from '../actions';
+import * as InitialState from '../InitialState';
 
-const initialState = {
-  success: false,
-  error: {
-    username: null,
-    password: null
-  },
-  processing: false
-};
-
-const login = function(state = initialState, action) {
+const login = function(state = InitialState.login, action) {
   switch (action.type) {
     case Actions.AUTH_PROCESSING: {
       return {
-        ...initialState,
+        ...InitialState.login,
         processing: true
       };
     }
     case Actions.AUTH_SUCCESS: {
       return {
-        ...initialState,
-        success: true
+        ...InitialState.login,
+        success: true,
+        token: action.token
       };
     }
     case Actions.AUTH_ERROR: {
       return {
-        ...initialState,
+        ...InitialState.login,
         error: action.payload
       };
     }
     case Actions.USER_LOGGED_OUT: {
-      return { ...initialState };
+      return { ...InitialState.login };
     }
     default: {
       return state;

@@ -1,0 +1,77 @@
+{
+  "error": {
+    "code": 400,
+    "message": "EXPIRED_OOB_CODE",
+    "errors": [
+      {
+        "message": "EXPIRED_OOB_CODE",
+        "domain": "global",
+        "reason": "invalid"
+      }
+    ]
+  }
+}
+
+
+======
+
+import _ from 'lodash';
+import React, { Fragment } from 'react';
+import { HomeRoutes } from 'app/config/routes.config';
+
+import { Can } from 'app/auth/AccessControl';
+
+import RouteUtils from 'utils/RouteUtils';
+import LoginConfig from 'app/auth/login/Login.config';
+import LogoutConfig from 'app/auth/logout/Logout.config';
+
+import modules from 'app/modules';
+
+
+// initial state is the routes
+const initialRoutes = [
+  {
+    path: '*',
+    component: React.lazy(() => (
+      <Fragment>
+        <h1>404 Not Found</h1>
+      </Fragment>
+    ))
+  }
+];
+
+const userRouteReducer = (routes, user) => {
+  if (!user) return initialRoutes;
+
+  const userRoutes = RouteUtils.generateRoutes([
+    ...modules,
+    LoginConfig,
+    LogoutConfig
+  ]).filter(route => Can(user.roles).read(route.id));
+
+  const homeRouteName =
+    _.find(HomeRoutes, routeName =>
+      user.roles.includes(homeRoute[routeName])
+    ) || '*';
+
+  const homeRoute = _.cloneDeep(
+    _.find(userRoutes.concat(initialRoutes), route =>
+      [route.id, route.path].includes(homeRouteName)
+    )
+  );
+
+  userRoutes.push({ ...homeRoute, path: '/home', exact: true });
+
+  return userRoutes;
+};
+
+export function AppContextProvider() {
+  const [routes, updateUserRoutes] = React.useReducer(
+    userRouteReducer,
+    initialRoutes
+  );
+
+  const value = { routes, updateUserRoutes };
+
+  return { value };
+}

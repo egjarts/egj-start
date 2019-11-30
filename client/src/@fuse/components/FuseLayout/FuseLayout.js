@@ -1,14 +1,14 @@
-import React, { Component } from "react";
-import { withStyles } from "@material-ui/core";
-import { FuseLayouts } from "@fuse";
-import _ from "@lodash";
-import { withRouter } from "react-router-dom";
-import { matchRoutes } from "react-router-config";
-import { bindActionCreators } from "redux";
-import { connect } from "react-redux";
-import * as Actions from "app/store/actions";
-import AppContext from "app/AppContext";
-import { generateSettings } from "app/store/reducers/fuse/settings.reducer";
+import React, { Component } from 'react';
+import { withStyles } from '@material-ui/core';
+import { FuseLayouts } from '@fuse';
+import _ from '@lodash';
+import { withRouter } from 'react-router-dom';
+import { matchRoutes } from 'react-router-config';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import * as Actions from 'app/store/actions';
+import AppContext from 'app/context/AppContext';
+import { generateSettings } from 'app/store/reducers/fuse/settings.reducer';
 
 const styles = theme => ({
   root: {
@@ -16,22 +16,22 @@ const styles = theme => ({
     color: theme.palette.text.primary,
     '& code:not([class*="language-"])': {
       color: theme.palette.secondary.dark,
-      backgroundColor: "#F5F5F5",
-      padding: "2px 3px",
+      backgroundColor: '#F5F5F5',
+      padding: '2px 3px',
       borderRadius: 2,
       lineHeight: 1.7
     },
-    "& table.simple tbody tr td": {
+    '& table.simple tbody tr td': {
       borderColor: theme.palette.divider
     },
-    "& table.simple thead tr th": {
+    '& table.simple thead tr th': {
       borderColor: theme.palette.divider
     },
-    "& a:not([role=button])": {
+    '& a:not([role=button])': {
       color: theme.palette.secondary.main,
-      textDecoration: "none",
-      "&:hover": {
-        textDecoration: "underline"
+      textDecoration: 'none',
+      '&:hover': {
+        textDecoration: 'underline'
       }
     },
     '& [class^="border-"]': {
@@ -47,7 +47,7 @@ class FuseLayout extends Component {
   constructor(props, context) {
     super(props);
     const { routes } = context;
-
+    console.info({ 'layout context': context });
     this.state = {
       awaitRender: false,
       routes
@@ -59,7 +59,7 @@ class FuseLayout extends Component {
     const matched = matchRoutes(state.routes, pathname)[0];
     let newSettings = props.settings;
 
-    if (state.pathname !== pathname) {
+    if (state.pathname !== pathname || (matched && matched.route.settings)) {
       if (matched && matched.route.settings) {
         const routeSettings = matched.route.settings;
 

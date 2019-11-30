@@ -3164,6 +3164,13 @@ accepts@~1.3.4, accepts@~1.3.5, accepts@~1.3.7:
     mime-types "~2.1.24"
     negotiator "0.6.2"
 
+accesscontrol@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/accesscontrol/-/accesscontrol-2.2.1.tgz#c942c48e330841c619682309a8c3aeec6bec66eb"
+  integrity sha512-52EvFk/J9EF+w4mYQoKnOTkEMj01R1U5n2fc1dai6x1xkgOks3DGkx01qQL2cKFxGmE4Tn1krAU3jJA9L1NMkg==
+  dependencies:
+    notation "^1.3.6"
+
 acorn-globals@^4.1.0, acorn-globals@^4.3.0:
   version "4.3.3"
   resolved "https://registry.yarnpkg.com/acorn-globals/-/acorn-globals-4.3.3.tgz#a86f75b69680b8780d30edd21eee4e0ea170c05e"
@@ -3615,14 +3622,14 @@ aws4@^1.8.0:
   resolved "https://registry.yarnpkg.com/aws4/-/aws4-1.8.0.tgz#f0e003d9ca9e7f59c7a508945d7b2ef9a04a542f"
   integrity sha512-ReZxvNHIOv88FlT7rxcXIIC0fPt4KZqZbOlivyWtXLt8ESx84zd3kMC6iK5jVeS2qt+g7ftS7ye4fi06X5rtRQ==
 
-axios-mock-adapter@1.17.0:
+axios-mock-adapter@^1.17.0:
   version "1.17.0"
   resolved "https://registry.yarnpkg.com/axios-mock-adapter/-/axios-mock-adapter-1.17.0.tgz#0dbee43c606d4aaba5a43d88d96d6661a7cc3c04"
   integrity sha512-q3efmwJUOO4g+wsLNSk9Ps1UlJoF3fQ3FSEe4uEEhkRtu7SoiAVPj8R3Hc/WP55MBTVFzaDP9QkdJhdVhP8A1Q==
   dependencies:
     deep-equal "^1.0.1"
 
-axios@0.19.0:
+axios@^0.19.0:
   version "0.19.0"
   resolved "https://registry.yarnpkg.com/axios/-/axios-0.19.0.tgz#8e09bff3d9122e133f7b8101c8fbdd00ed3d2ab8"
   integrity sha512-1uvKqKQta3KBxIz14F2v06AEHZ/dIoeKfbTRkK1E5oqjDnuEerLmYTgJB5AiQZHJcljpg1TuRzdjDR06qNk0DQ==
@@ -4982,6 +4989,13 @@ crypto-js@^3.1.9-1:
   version "3.1.9-1"
   resolved "https://registry.yarnpkg.com/crypto-js/-/crypto-js-3.1.9-1.tgz#fda19e761fc077e01ffbfdc6e9fdfc59e8806cd8"
   integrity sha1-/aGedh/Ad+Af+/3G6f38WeiAbNg=
+
+crypto-random-string@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/crypto-random-string/-/crypto-random-string-3.0.1.tgz#29d7dc759d577a768afb3b7b2765dd9bd7ffe36a"
+  integrity sha512-dUL0cJ4PBLanJGJQBHQUkvZ3C4q13MXzl54oRqAIiJGiNkOZ4JDwkg/SBo7daGghzlJv16yW1p/4lIQukmbedA==
+  dependencies:
+    type-fest "^0.5.2"
 
 css-blank-pseudo@^0.1.4:
   version "0.1.4"
@@ -9943,6 +9957,11 @@ normalize.css@^8.0.1:
   version "8.0.1"
   resolved "https://registry.yarnpkg.com/normalize.css/-/normalize.css-8.0.1.tgz#9b98a208738b9cc2634caacbc42d131c97487bf3"
   integrity sha512-qizSNPO93t1YUuUhP22btGOo3chcvDFqFaj2TRybP0DMxkHOCTYwp3n34fel4a31ORXy4m1Xq0Gyqpb5m33qIg==
+
+notation@^1.3.6:
+  version "1.3.6"
+  resolved "https://registry.yarnpkg.com/notation/-/notation-1.3.6.tgz#bc87b88d1f1159e2931e7f9317a3020313790321"
+  integrity sha512-DIuJmrP/Gg1DcXKaApsqcjsJD6jEccqKSfmU3BUx/f1GHsMiTJh70cERwYc64tOmTRTARCeMwkqNNzjh3AHhiw==
 
 notistack@0.9.5:
   version "0.9.5"

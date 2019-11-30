@@ -1,22 +1,27 @@
-import firebaseService from "app/services/firebaseService";
-import * as Actions from "app/store/actions";
-import * as userActions from "./user.actions";
+import firebaseService from 'app/services/firebaseService';
+import * as Actions from 'app/store/actions';
+import * as userActions from './user.actions';
 
-export const AUTH_PROCESSING = "AUTH_PROCESSING";
-export const AUTH_ERROR = "AUTH_ERROR";
-export const AUTH_SUCCESS = "AUTH_SUCCESS";
+export const AUTH_PROCESSING =
+  '[AUTHENTICATION] Processing Authentication Request';
+export const AUTH_ERROR = '[AUTHENTICATION] ERROR';
+export const AUTH_SUCCESS = '[AUTHENTICATION] Successfully Authenticated';
 
-export function setLoginStatus(status) {
+export function setLoginStatus(status, token) {
   return dispatch =>
-    dispatch({ type: status ? AUTH_SUCCESS : userActions.USER_LOGGED_OUT });
+    dispatch(
+      !status
+        ? { type: userActions.USER_LOGGED_OUT }
+        : { type: AUTH_SUCCESS, token }
+    );
 }
 
 export function authenticate(provider, data) {
   return dispatch => {
     switch (provider) {
-      case "google":
+      case 'google':
         return authenticateWithGoogle(data)(dispatch);
-      case "password":
+      case 'password':
         return authenticateWithEmail(data)(dispatch);
       default:
         return dispatch({
@@ -26,42 +31,28 @@ export function authenticate(provider, data) {
   };
 }
 
-// todo: make error codes more secure
 function authenticateWithEmail({ username, password }) {
   return dispatch =>
     firebaseService.auth &&
     firebaseService.auth
       .signInWithEmailAndPassword(username, password)
-      .then(() => {
-        return dispatch({
-          type: AUTH_SUCCESS
+      .then(result => {
+        result.user.getIdToken().then(token => {
+          return dispatch({
+            type: AUTH_SUCCESS,
+            token
+          });
         });
       })
       .catch(error => {
-        const usernameErrorCodes = [
-          "auth/email-already-in-use",
-          "auth/invalid-email",
-          "auth/operation-not-allowed",
-          "auth/user-not-found",
-          "auth/user-disabled"
-        ];
-        const passwordErrorCodes = [
-          "auth/weak-password",
-          "auth/wrong-password"
-        ];
-
-        const response = {
-          username: usernameErrorCodes.includes(error.code)
-            ? error.message
-            : null,
-          password: passwordErrorCodes.includes(error.code)
-            ? error.message
-            : null
-        };
-
-        if (error.code === "auth/invalid-api-key") {
+        console.error(error);
+        if (error.code === 'auth/invalid-api-key') {
           dispatch(Actions.showMessage({ message: error.message }));
         }
+
+        const response = {
+          password: 'Either the email or password was incorrect.'
+        };
 
         return dispatch({
           type: AUTH_ERROR,
@@ -81,9 +72,12 @@ function authenticateWithGoogle(options) {
   return dispatch =>
     firebaseService.auth &&
     firebaseService.auth &&
-    firebaseService.auth.signInWithPopup(provider).then(() => {
-      return dispatch({
-        type: AUTH_SUCCESS
+    firebaseService.auth.signInWithPopup(provider).then(result => {
+      result.user.getIdToken().then(token => {
+        return dispatch({
+          type: AUTH_SUCCESS,
+          token
+        });
       });
     });
 }

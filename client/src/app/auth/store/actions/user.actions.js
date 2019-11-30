@@ -1,51 +1,71 @@
-import history from "@history";
-import { setDefaultSettings, setInitialSettings } from "app/store/actions/fuse";
-import _ from "@lodash";
-import store from "app/store";
-import * as Actions from "app/store/actions";
-import firebase from "firebase/app";
-import firebaseService from "app/services/firebaseService";
+import history from '@history';
+import { setDefaultSettings, setInitialSettings } from 'app/store/actions/fuse';
+import _ from '@lodash';
+import store from 'app/store';
+import * as Actions from 'app/store/actions';
+import firebase from 'firebase/app';
+import firebaseService from 'app/services/firebaseService';
+import * as InitialState from '../InitialState';
 
-export const SET_USER_PREFERENCES = "[USER] SET USER DATA";
-export const USER_LOGGED_OUT = "[USER] LOGGED OUT";
+export const SET_USER_DATA = '[USER] SET USER DATA';
+export const SET_USER_PREFERENCES = '[USER] SET USER PREFERENCES';
+export const USER_LOGGED_OUT = '[USER] LOGGED OUT';
+
+/*
+Load user data from Firebase auth info
+*/
+export function setUserData(user) {
+  return dispatch => {
+    dispatch({
+      type: SET_USER_DATA,
+      user
+    });
+  };
+}
 
 /**
- * Set user data from Firebase data
+ * Load user preferences from Firebase data
  */
-export function loadUserPreferences(user, authUser) {
-  if (user && user.preferences) {
+export function loadUserPreferences(preferences) {
+  // if the user id hasn't been set but the auth user
+  // has data,
+
+  if (preferences) {
     // User preferences have already been loaded and merged;
     // apply them to the UI
-    return setUserPreferences(user.preferences);
+    return setUserPreferences(preferences);
   } else {
     // Create missing user preferences
-    return createUserPreferences(authUser);
+    return createUserPreferences();
   }
 }
 
 /**
  * Create a user preferences profile in Firebase
  */
-export function createUserPreferences(authUser) {
+export function createUserPreferences() {
   return (dispatch, getState) => {
     const context = getState().auth;
-    const fuseDefaultSettings = getState().fuse.settings.defaults;
-    const currentUser = firebase.auth().currentUser;
 
-    /**
-     * Merge with current Settings
-     */
+    let photoURL = context.user.photoURL;
+    if (!photoURL && context.user.providerData) {
+      const photoProvider = _.find(context.user.providerData, provider => {
+        return provider.photoURL ? true : false;
+      });
+      if (photoProvider) photoURL = photoProvider.photoURL;
+    }
     const user = _.merge({}, context.user, {
-      uid: authUser.uid,
       preferences: {
-        displayName: authUser.displayName,
-        email: authUser.email,
-        settings: { ...fuseDefaultSettings }
+        ...InitialState.preferences,
+        displayName: context.user.displayName,
+        email: context.user.email,
+        photoURL: photoURL
       }
     });
-    currentUser.updateProfile(user.preferences);
 
-    saveUserPreferences(user);
+    firebaseService.updateUserPreferences(user).catch(error => {
+      store.dispatch(Actions.showMessage({ message: error.message }));
+    });
 
     return dispatch(setUserPreferences(user.preferences));
   };
@@ -119,7 +139,7 @@ export function logoutUser() {
     }
 
     history.push({
-      pathname: "/"
+      pathname: '/'
     });
 
     firebaseService.signOut();
@@ -136,10 +156,11 @@ export function logoutUser() {
  * Persist user preferences to Firebase
  */
 function saveUserPreferences(user) {
+  if (!user || !user.uid) return;
   firebaseService
-    .updateUserData(user, firebaseService.dataType.preferences)
+    .updateUserPreferences(user)
     .then(() => {
-      store.dispatch(Actions.showMessage({ message: "User settings saved" }));
+      store.dispatch(Actions.showMessage({ message: 'User settings saved' }));
     })
     .catch(error => {
       store.dispatch(Actions.showMessage({ message: error.message }));

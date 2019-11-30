@@ -1,0 +1,18 @@
+import React from "react";
+
+export const HomeConfig = {
+  settings: {
+    layout: {}
+  },
+  authentication: true,
+  routes: [
+    {
+      path: "/home",
+      component: React.lazy(() => import("app/modules/home/Home"))
+    }
+  ]
+};
+
+const defaultComponents = 
+{
+  Staff: "home"

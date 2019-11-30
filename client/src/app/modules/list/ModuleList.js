@@ -1,0 +1,23 @@
+import React, { Fragment } from "react";
+import { Link } from "react-router-dom";
+
+import modules from "app/modules";
+
+const List = props => {
+  return (
+    <Fragment>
+      {modules.map(module => {
+        let path = module.routes[0].path;
+        if (typeof path !== "string") path = path[0];
+
+        return (
+          <Link key={module.id} to={path}>
+            ({module.displayName})
+          </Link>
+        );
+      })}
+    </Fragment>
+  );
+};
+
+export default List;
