@@ -1,10 +1,11 @@
+import _ from 'lodash';
 import React, { Component } from 'react';
+
 import { FuseSplashScreen } from '@fuse';
 import { connect } from 'react-redux';
 import * as userActions from 'app/auth/store/actions';
 import { bindActionCreators } from 'redux';
 import * as Actions from 'app/store/actions';
-import AppContext from 'app/context/AppContext';
 import firebaseService from 'app/services/firebaseService';
 
 class Auth extends Component {
@@ -33,20 +34,19 @@ class Auth extends Component {
         if (user && !user.isAnonymous) {
           // the user may have been authenticated by a cookie / persisted session
           user.getIdToken().then(token => {
-            if (user.roles) {
-              user.roles.unshift('Authenticated');
-            } else {
-              user.roles = ['Authenticated'];
+            if (this.props.login.token !== token) {
+              this.props.setLoginStatus(true, token);
             }
-            this.props.setLoginStatus(true, token);
-            this.props.setUserData(user);
 
             /**
-             * Retrieve user preferences from Firebase
+             * Retrieve user data from Firebase
              */
-            firebaseService.getUserPreferences(user.uid).then(
-              preferences => {
-                this.props.loadUserPreferences(preferences, user);
+            firebaseService.getUserData(user.uid).then(
+              userData => {
+                this.props.setUserData(_.merge({}, user, userData));
+
+                this.props.loadUserPreferences(userData.preferences);
+
                 resolve();
               },
               error => {
@@ -55,7 +55,7 @@ class Auth extends Component {
             );
           });
         } else {
-          this.props.setLoginStatus(false);
+          if (this.props.login.success) this.props.setLoginStatus(false);
 
           resolve();
         }
@@ -73,6 +73,12 @@ class Auth extends Component {
   }
 }
 
+function mapStateToProps({ auth }) {
+  return {
+    login: auth.login
+  };
+}
+
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
@@ -88,6 +94,4 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-Auth.contextType = AppContext;
-
-export default connect(null, mapDispatchToProps)(Auth);
+export default connect(mapStateToProps, mapDispatchToProps)(Auth);

@@ -1,7 +1,7 @@
 import React from 'react';
-import Registration from './registration/Registration.config';
-import ModuleList from './list/Config';
+import Registration from './staff/registration/Registration.config';
+import StaffList from './staff/list/StaffList.config';
 
-const moduleConfigs = [ModuleList, Registration];
+const moduleConfigs = [StaffList, Registration];
 
 export default moduleConfigs;

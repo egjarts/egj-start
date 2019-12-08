@@ -59,19 +59,7 @@ class RouteUtils {
           });
         });
       });
-      console.group('setRoutes');
-      console.info(grants);
-      console.info({
-        ...route,
-        id,
-        displayName,
-        settings: {
-          ...config.settings,
-          ...route.settings
-        },
-        accessControl // retained for later reference but probably not needed
-      });
-      console.groupEnd();
+
       AccessControl.merge(grants);
 
       return {

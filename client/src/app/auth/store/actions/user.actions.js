@@ -7,9 +7,9 @@ import firebase from 'firebase/app';
 import firebaseService from 'app/services/firebaseService';
 import * as InitialState from '../InitialState';
 
-export const SET_USER_DATA = '[USER] SET USER DATA';
-export const SET_USER_PREFERENCES = '[USER] SET USER PREFERENCES';
-export const USER_LOGGED_OUT = '[USER] LOGGED OUT';
+export const SET_USER_DATA = '[USER] Load user data';
+export const SET_USER_PREFERENCES = '[USER] Apply user preferences';
+export const USER_LOGGED_OUT = '[USER] Signed out';
 
 /*
 Load user data from Firebase auth info
@@ -27,9 +27,6 @@ export function setUserData(user) {
  * Load user preferences from Firebase data
  */
 export function loadUserPreferences(preferences) {
-  // if the user id hasn't been set but the auth user
-  // has data,
-
   if (preferences) {
     // User preferences have already been loaded and merged;
     // apply them to the UI

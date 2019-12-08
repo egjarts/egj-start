@@ -1,11 +1,11 @@
-import React, { Fragment } from "react";
-import { AppBar, Hidden, Toolbar as MuiToolbar } from "@material-ui/core";
-import { makeStyles, ThemeProvider } from "@material-ui/styles";
-import { FuseSearch, FuseShortcuts } from "@fuse";
-import NavbarMobileToggleButton from "app/layout/shared-components/NavbarMobileToggleButton";
-import QuickPanelToggleButton from "app/layout/shared-components/quickPanel/QuickPanelToggleButton";
-import UserMenu from "app/layout/shared-components/UserMenu";
-import { useSelector } from "react-redux";
+import React, { Fragment } from 'react';
+import { AppBar, Hidden, Toolbar as MuiToolbar } from '@material-ui/core';
+import { makeStyles, ThemeProvider } from '@material-ui/styles';
+import { FuseSearch, FuseShortcuts } from '@fuse';
+import NavbarMobileToggleButton from 'app/layout/shared-components/NavbarMobileToggleButton';
+import QuickPanelToggleButton from 'app/layout/shared-components/quickPanel/QuickPanelToggleButton';
+import UserMenu from 'app/layout/shared-components/UserMenu';
+import { useSelector } from 'react-redux';
 
 const useStyles = makeStyles(theme => ({
   separator: {
@@ -23,24 +23,29 @@ function Toolbar(props) {
 
   return (
     <ThemeProvider theme={toolbarTheme}>
-      <AppBar id="fuse-toolbar" className="flex relative z-10" color="default">
-        <MuiToolbar className="p-0">
-          {config.navbar.display && config.navbar.position === "left" && (
+      <AppBar
+        id='fuse-toolbar'
+        className='flex relative z-10'
+        color='primary'
+        elevation={1}
+      >
+        <MuiToolbar className='p-0'>
+          {config.navbar.display && config.navbar.position === 'left' && (
             <Hidden lgUp>
-              <NavbarMobileToggleButton className="w-64 h-64 p-0" />
+              <NavbarMobileToggleButton className='w-64 h-64 p-0' />
               <div className={classes.separator} />
             </Hidden>
           )}
 
-          <div className="flex flex-1">
+          <div className='flex flex-1'>
             {config.toolbar.items && config.toolbar.items.shortcuts.display && (
               <Hidden mdDown>
-                <FuseShortcuts className="px-16" />
+                <FuseShortcuts className='px-16' />
               </Hidden>
             )}
           </div>
 
-          <div className="flex">
+          <div className='flex'>
             <UserMenu />
 
             {config.toolbar.items && config.toolbar.items.search.display && (
@@ -60,7 +65,7 @@ function Toolbar(props) {
               )}
           </div>
 
-          {config.navbar.display && config.navbar.position === "right" && (
+          {config.navbar.display && config.navbar.position === 'right' && (
             <Hidden lgUp>
               <NavbarMobileToggleButton />
             </Hidden>

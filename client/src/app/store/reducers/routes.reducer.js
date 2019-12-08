@@ -1,43 +1,36 @@
+import _ from 'lodash';
+import React, { Fragment } from 'react';
 import * as Config from 'app/config/routes.config';
-import * as Actions from '../actions/routes.actions';
+import * as RouteActions from '../actions/routes.actions';
+import * as AuthActions from 'app/auth/store/actions';
+import RandomString from 'crypto-random-string';
+import { AccessControl, Can } from 'app/auth/AccessControl';
 
-const initialState = [
-  {
-    path: '*',
-    component: React.lazy(() => (
-      <Fragment>
-        <h1>404 Not Found</h1>
-      </Fragment>
-    ))
-  }
-];
-
-const routes = function(state = initialState, action) {
+export const routeMiddleware = store => next => action => {
   switch (action.type) {
-    case Actions.RESET_ROUTES:
-      return initialState;
-    case Actions.SET_USER_ROUTES:
-      const user = action.user;
-      if (!user || !user.roles) return initialRoutes;
-
-      const userRoutes = getAllRoutes().filter(route =>
-        Can(user).read(route.id)
+    case '@@INIT':
+    case AuthActions.USER_LOGGED_OUT:
+      next(action);
+      return store.dispatch(RouteActions.resetRoutes());
+    case AuthActions.SET_USER_DATA:
+      next(action);
+      return store.dispatch(
+        RouteActions.setUserRoutes({ roles: action.user.roles })
       );
+    default:
+      return next(action);
+  }
+};
 
-      const homeRouteName =
-        _.find(Config.HomeRoutes, routeName =>
-          user.roles.includes(homeRoute[routeName])
-        ) || '*';
-
-      const homeRoute = _.cloneDeep(
-        _.find(userRoutes.concat(initialRoutes), route =>
-          [route.id, route.path].includes(homeRouteName)
-        )
-      );
-
-      userRoutes.push({ ...homeRoute, path: '/home', exact: true });
-
-      return userRoutes;
+const routes = function(
+  state = getUserRoutes({ roles: ['Anonymous'] }),
+  action
+) {
+  switch (action.type) {
+    case RouteActions.RESET_ROUTES:
+      return getUserRoutes({ roles: ['Anonymous'] });
+    case RouteActions.SET_USER_ROUTES:
+      return getUserRoutes(action.user);
     default: {
       return state;
     }
@@ -45,15 +38,6 @@ const routes = function(state = initialState, action) {
 };
 
 export default routes;
-
-const getAllRoutes = () => {
-  let allRoutes = [];
-  Config.RoutableComponents.forEach(component => {
-    allRoutes = [...allRoutes, ...setRoutes(component)];
-  });
-
-  return allRoutes;
-};
 
 const setRoutes = component => {
   if (!component.routes) return;
@@ -111,19 +95,6 @@ const setRoutes = component => {
         });
       });
     });
-    console.group('setRoutes');
-    console.info(grants);
-    console.info({
-      ...route,
-      id,
-      displayName,
-      settings: {
-        ...component.settings,
-        ...route.settings
-      },
-      accessControl // retained for later reference but probably not needed
-    });
-    console.groupEnd();
     AccessControl.merge(grants);
 
     return {
@@ -139,4 +110,34 @@ const setRoutes = component => {
   });
 
   return [...routes];
+};
+
+const AllRoutes = (function() {
+  let allRoutes = [];
+  Config.RoutableComponents.forEach(component => {
+    allRoutes = [...allRoutes, ...setRoutes(component)];
+  });
+
+  return allRoutes;
+})();
+
+const getUserRoutes = user => {
+  if (!user || !user.roles) return AllRoutes;
+
+  const userRoutes = _.clone(AllRoutes);
+
+  const homeRouteName =
+    Config.HomeRoutes[
+      _.find(Object.keys(Config.HomeRoutes), roleName =>
+        user.roles.includes(roleName)
+      )
+    ] || '*';
+
+  const homeRoute = _.cloneDeep(
+    _.find(userRoutes, route => [route.id, route.path].includes(homeRouteName))
+  );
+
+  userRoutes.push({ ...homeRoute, path: ['/home', '*'], exact: true });
+
+  return userRoutes;
 };

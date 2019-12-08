@@ -44,21 +44,18 @@ const styles = theme => ({
 });
 
 class FuseLayout extends Component {
-  constructor(props, context) {
+  constructor(props) {
     super(props);
-    const { routes } = context;
-    console.info({ 'layout context': context });
+
     this.state = {
-      awaitRender: false,
-      routes
+      awaitRender: false
     };
   }
 
   static getDerivedStateFromProps(props, state) {
     const { pathname } = props.location;
-    const matched = matchRoutes(state.routes, pathname)[0];
+    const matched = matchRoutes(props.routes, pathname)[0];
     let newSettings = props.settings;
-
     if (state.pathname !== pathname || (matched && matched.route.settings)) {
       if (matched && matched.route.settings) {
         const routeSettings = matched.route.settings;
@@ -88,7 +85,6 @@ class FuseLayout extends Component {
     // console.warn('FuseLayout:: rendered');
 
     const Layout = FuseLayouts[settings.layout.style];
-
     return !this.state.awaitRender ? (
       <Layout classes={{ root: classes.root }} {...this.props} />
     ) : null;
@@ -105,14 +101,13 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-function mapStateToProps({ fuse }) {
+function mapStateToProps({ fuse, routes }) {
   return {
     defaultSettings: fuse.settings.defaults,
-    settings: fuse.settings.current
+    settings: fuse.settings.current,
+    routes
   };
 }
-
-FuseLayout.contextType = AppContext;
 
 export default withStyles(styles, { withTheme: true })(
   withRouter(

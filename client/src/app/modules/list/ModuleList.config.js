@@ -5,7 +5,7 @@ export const Config = {
   displayName: 'My Apps',
   routes: [
     {
-      path: ['/module/list', '/', '/home'],
+      path: '/module/list',
       exact: true,
       component: React.lazy(() => import('./ModuleList'))
     }

@@ -1,14 +1,14 @@
 const settingsConfig = {
   layout: {
-    style: "default",
+    style: 'default',
     config: {}
   },
   customScrollbars: true,
   theme: {
-    main: "default",
-    navbar: "mainThemeDark",
-    toolbar: "mainThemeLight",
-    footer: "mainThemeDark"
+    main: 'default',
+    navbar: 'mainThemeDark',
+    toolbar: 'mainThemeDark',
+    footer: 'mainThemeDark'
   }
 };
 

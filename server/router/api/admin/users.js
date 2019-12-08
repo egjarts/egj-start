@@ -1,10 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const authenticate = require('../../../authentication/authenticate');
 
 const { google } = require('googleapis');
 
-router.get('/list', authenticate, async (request, response) => {
+router.get('/users', async (request, response) => {
   const Auth = new google.auth.GoogleAuth({
     // Scopes can be specified either as an array or as a single, space-delimited string.
     scopes:

@@ -61,6 +61,7 @@
     "react-text-mask": "5.4.3",
     "react-virtualized": "9.21.1",
     "react-window": "1.8.5",
+    "reduce-reducers": "^1.0.4",
     "redux": "4.0.4",
     "redux-thunk": "2.3.0",
     "typeface-muli": "0.0.71",

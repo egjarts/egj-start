@@ -8,8 +8,6 @@ import jssExtend from 'jss-extend';
 import history from '@history';
 import { Auth } from './auth';
 import store from './store';
-import AppContext from './context/AppContext';
-import routes from './config/routes.config';
 import { create } from 'jss';
 import {
   StylesProvider,
@@ -29,33 +27,23 @@ const jss = create({
 const generateClassName = createGenerateClassName();
 
 class App extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      routes: routes
-    };
-  }
-
   render() {
     return (
-      <AppContext.Provider value={this.state}>
-        <StylesProvider jss={jss} generateClassName={generateClassName}>
-          <Provider store={store}>
-            <MuiPickersUtilsProvider utils={MomentUtils}>
-              <Auth>
-                <Router history={history}>
-                  <AccessControl>
-                    <FuseTheme>
-                      <FuseLayout />
-                    </FuseTheme>
-                  </AccessControl>
-                </Router>
-              </Auth>
-            </MuiPickersUtilsProvider>
-          </Provider>
-        </StylesProvider>
-      </AppContext.Provider>
+      <StylesProvider jss={jss} generateClassName={generateClassName}>
+        <Provider store={store}>
+          <MuiPickersUtilsProvider utils={MomentUtils}>
+            <Auth>
+              <Router history={history}>
+                <AccessControl>
+                  <FuseTheme>
+                    <FuseLayout />
+                  </FuseTheme>
+                </AccessControl>
+              </Router>
+            </Auth>
+          </MuiPickersUtilsProvider>
+        </Provider>
+      </StylesProvider>
     );
   }
 }

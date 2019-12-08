@@ -9,6 +9,7 @@ import {
   MenuItem,
   Typography
 } from '@material-ui/core';
+import { ThemeProvider } from '@material-ui/styles';
 import { useSelector, useDispatch } from 'react-redux';
 import * as authActions from 'app/auth/store/actions';
 import { Link } from 'react-router-dom';
@@ -17,6 +18,9 @@ function UserMenu(props) {
   const dispatch = useDispatch();
   const auth = useSelector(({ auth }) => auth);
   const user = auth.user;
+
+  const settings = useSelector(({ fuse }) => fuse.settings);
+  const popoverTheme = settings.themes[settings.current.theme.main];
 
   const [userMenu, setUserMenu] = useState(null);
 
@@ -42,7 +46,11 @@ function UserMenu(props) {
 
   return (
     <React.Fragment>
-      <Button className='h-64' onClick={userMenuClick}>
+      <Button
+        classes={{ root: 'h-64', label: 'pr-6' }}
+        onClick={userMenuClick}
+        style={{ color: 'white' }}
+      >
         {avatar.photoURL ? (
           <Avatar className='' alt={avatar.text} src={avatar.photoURL} />
         ) : (
@@ -50,7 +58,11 @@ function UserMenu(props) {
         )}
 
         <div className='hidden md:flex flex-col ml-12 items-start'>
-          <Typography component='span' className='normal-case font-600 flex'>
+          <Typography
+            component='span'
+            className='normal-case font-600 flex'
+            color='textPrimary'
+          >
             {avatar.text}
           </Typography>
         </div>
@@ -60,69 +72,75 @@ function UserMenu(props) {
         </Icon>
       </Button>
 
-      <Popover
-        open={Boolean(userMenu)}
-        anchorEl={userMenu}
-        onClose={userMenuClose}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'center'
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'center'
-        }}
-        classes={{
-          paper: 'py-8'
-        }}
-      >
-        {!auth.login.success ? (
-          <React.Fragment>
-            <MenuItem component={Link} to='/login'>
-              <ListItemIcon className='min-w-40'>
-                <Icon>lock</Icon>
-              </ListItemIcon>
-              <ListItemText className='pl-0' primary='Login' />
-            </MenuItem>
-            <MenuItem component={Link} to='/register'>
-              <ListItemIcon className='min-w-40'>
-                <Icon>person_add</Icon>
-              </ListItemIcon>
-              <ListItemText className='pl-0' primary='Register' />
-            </MenuItem>
-          </React.Fragment>
-        ) : (
-          <React.Fragment>
-            <MenuItem
-              component={Link}
-              to='/pages/profile'
-              onClick={userMenuClose}
-            >
-              <ListItemIcon className='min-w-40'>
-                <Icon>account_circle</Icon>
-              </ListItemIcon>
-              <ListItemText className='pl-0' primary='My Profile' />
-            </MenuItem>
-            <MenuItem component={Link} to='/apps/mail' onClick={userMenuClose}>
-              <ListItemIcon className='min-w-40'>
-                <Icon>mail</Icon>
-              </ListItemIcon>
-              <ListItemText className='pl-0' primary='Inbox' />
-            </MenuItem>
-            <MenuItem
-              onClick={() => {
-                dispatch(authActions.logoutUser());
-                userMenuClose();
-              }}
-            >
-              <ListItemIcon className='min-w-40'>
-                <Icon>exit_to_app</Icon>
-              </ListItemIcon>
-              <ListItemText className='pl-0' primary='Logout' />
-            </MenuItem>
-          </React.Fragment>
-        )}
-      </Popover>
+      <ThemeProvider theme={popoverTheme}>
+        <Popover
+          open={Boolean(userMenu)}
+          anchorEl={userMenu}
+          onClose={userMenuClose}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'center'
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'center'
+          }}
+          classes={{
+            paper: 'py-8'
+          }}
+        >
+          {!auth.login.success ? (
+            <React.Fragment>
+              <MenuItem component={Link} to='/login'>
+                <ListItemIcon className='min-w-40'>
+                  <Icon>lock</Icon>
+                </ListItemIcon>
+                <ListItemText className='pl-0' primary='Login' />
+              </MenuItem>
+              <MenuItem component={Link} to='/register'>
+                <ListItemIcon className='min-w-40'>
+                  <Icon>person_add</Icon>
+                </ListItemIcon>
+                <ListItemText className='pl-0' primary='Register' />
+              </MenuItem>
+            </React.Fragment>
+          ) : (
+            <React.Fragment>
+              <MenuItem
+                component={Link}
+                to='/pages/profile'
+                onClick={userMenuClose}
+              >
+                <ListItemIcon className='min-w-40'>
+                  <Icon>account_circle</Icon>
+                </ListItemIcon>
+                <ListItemText className='pl-0' primary='My Profile' />
+              </MenuItem>
+              <MenuItem
+                component={Link}
+                to='/apps/mail'
+                onClick={userMenuClose}
+              >
+                <ListItemIcon className='min-w-40'>
+                  <Icon>mail</Icon>
+                </ListItemIcon>
+                <ListItemText className='pl-0' primary='Inbox' />
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  dispatch(authActions.logoutUser());
+                  userMenuClose();
+                }}
+              >
+                <ListItemIcon className='min-w-40'>
+                  <Icon>exit_to_app</Icon>
+                </ListItemIcon>
+                <ListItemText className='pl-0' primary='Logout' />
+              </MenuItem>
+            </React.Fragment>
+          )}
+        </Popover>
+      </ThemeProvider>
     </React.Fragment>
   );
 }

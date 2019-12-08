@@ -3,16 +3,17 @@ import * as Actions from '../actions';
 import * as InitialState from '../InitialState';
 
 const user = function(state = InitialState.user, action) {
+  const authRoles = [
+    InitialState.roles.anonymous,
+    InitialState.roles.authenticated
+  ];
+
   switch (action.type) {
     case Actions.AUTH_SUCCESS: {
       const user = { ...state };
       if (user.roles) {
         // if the user currently has either auth role
         // (Anonymous or Authenticated), remove it
-        const authRoles = [
-          InitialState.roles.anonymous,
-          InitialState.roles.authenticated
-        ];
         _.remove(user.roles, role => {
           return authRoles.includes(role);
         });
@@ -22,9 +23,6 @@ const user = function(state = InitialState.user, action) {
       } else {
         user.roles = [InitialState.roles.authenticated];
       }
-      console.group(action.type);
-      console.info(user);
-      console.groupEnd();
 
       return user;
     }
@@ -36,10 +34,17 @@ const user = function(state = InitialState.user, action) {
         .reduce((data, key) => {
           return { ...data, [key]: action.user[key] };
         }, {});
+
+      // keep the authenticated/unauthenticated role from the
+      // current state but override any others
+      const authRole = state.roles
+        ? _.find(state.roles, role => authRoles.includes(role))
+        : null;
+
+      if (authRole) userData.roles.unshift(authRole);
+
       const user = { ...state, ...userData };
-      console.group(action.type);
-      console.info(user);
-      console.groupEnd();
+
       return user;
     }
     case Actions.SET_USER_PREFERENCES: {
@@ -53,10 +58,6 @@ const user = function(state = InitialState.user, action) {
           ...preferences
         }
       };
-
-      console.group(action.type);
-      console.info(user);
-      console.groupEnd();
 
       return user;
     }

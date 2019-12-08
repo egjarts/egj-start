@@ -74,10 +74,7 @@ function authenticateWithGoogle(options) {
     firebaseService.auth &&
     firebaseService.auth.signInWithPopup(provider).then(result => {
       result.user.getIdToken().then(token => {
-        return dispatch({
-          type: AUTH_SUCCESS,
-          token
-        });
+        return dispatch(setLoginStatus(true, token));
       });
     });
 }

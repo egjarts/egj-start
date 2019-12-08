@@ -57,7 +57,7 @@ function Register(props) {
       sidebarInner
       innerScroll
       header={
-        <div className='flex flex-col flex-1' elevation={1}>
+        <div className='flex flex-col flex-1'>
           <div className='flex items-center pl-12 lg:pl-24 p-24'>
             <div>
               <img

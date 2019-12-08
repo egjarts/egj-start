@@ -10,13 +10,11 @@ import * as authActions from 'app/auth/store/actions';
 import AccessControlBase from 'accesscontrol';
 
 class AccessControlComponent extends Component {
-  constructor(props, context) {
+  constructor(props) {
     super(props);
 
-    const { routes } = context;
     this.state = {
       accessGranted: true,
-      routes,
       match: null
     };
   }
@@ -33,21 +31,24 @@ class AccessControlComponent extends Component {
     }
   }
 
-  static getDerivedStateFromProps(props, state) {
-    const { location, auth } = props;
+  static getDerivedStateFromProps(props) {
+    const { location, auth, routes } = props;
     const { pathname } = location;
 
-    const matched = matchRoutes(state.routes, pathname)[0];
-    const permission = Can(auth.user.roles).read(matched.route.id);
+    let match = null,
+      accessGranted = false;
 
-    console.group('AccessControl');
-    console.info(auth.user.roles);
-    console.info(matched.route.id);
-    console.groupEnd();
+    const matched = matchRoutes(routes, pathname)[0];
+    if (matched) {
+      const permission = Can(auth.user).read(matched.route.id);
+
+      accessGranted = permission.granted;
+      match = matched.match;
+    }
 
     return {
-      accessGranted: matched ? permission.granted : true,
-      match: matched.match
+      accessGranted,
+      match
     };
   }
 
@@ -56,8 +57,8 @@ class AccessControlComponent extends Component {
   }
 
   redirectRoute() {
-    const { location, auth, history } = this.props;
     const { match } = this.state;
+    const { location, auth, history } = this.props;
     const { pathname, state } = location;
 
     /*
@@ -107,9 +108,10 @@ class AccessControlComponent extends Component {
   }
 }
 
-function mapStateToProps({ auth }) {
+function mapStateToProps({ auth, routes }) {
   return {
-    auth
+    auth,
+    routes
   };
 }
 
@@ -128,7 +130,15 @@ export default withRouter(
   connect(mapStateToProps, mapDispatchToProps)(AccessControlComponent)
 );
 
-const acInstance = new AccessControlBase();
+const acInstance = new AccessControlBase(
+  ['Staff', 'Authenticated', 'Anonymous', 'Default'].map(role => {
+    return {
+      role: role,
+      resource: 'app',
+      action: 'read'
+    };
+  })
+);
 
 class AccessControl extends AccessControlBase {
   static get global() {
@@ -186,14 +196,28 @@ class AccessControl extends AccessControlBase {
   }
 
   static can(query) {
-    // enables a shorthand where we simply
-    // pass in a user object with a roles
-    // property already attached to it
+    var safeQuery = query;
+
+    // Make sure the query is safe by only including roles
+    // the global access control object actually holds
     if (_.isArray(query.roles)) {
-      return AccessControl.global.can(query.roles);
+      // enables a shorthand where we simply
+      // pass in a user object with a roles
+      // property already attached to it
+      safeQuery = query.roles.filter(role =>
+        AccessControl.global.hasRole(role)
+      );
+    } else if (_.isArray(query)) {
+      // Uses the default behavior for passing an array of roles,
+      // but filters out any roles not managed by AccessControl
+      safeQuery = query.filter(role => AccessControl.global.hasRole(role));
+    } else if (_.isString(query)) {
+      // Uses the default behavior for passing a string role name,
+      // but replaces it with "Default" if the role isn't managed by AccessControl
+      safeQuery = AccessControl.global.hasRole(query) ? query : 'Default';
     }
 
-    return AccessControl.global.can(query);
+    return AccessControl.global.can(safeQuery);
   }
 }
 
