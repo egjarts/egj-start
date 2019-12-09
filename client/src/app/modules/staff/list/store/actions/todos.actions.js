@@ -18,7 +18,7 @@ export const CHANGE_ORDER = '[TODO APP] CHANGE ORDER';
 
 export function getStaffList(params) {
   //const request = axios.post('/api/admin/staff/prospects', { params });
-  const request = axios.post('/api/admin/staff/prospects');
+  const request = axios.post('/api/q/staff');
   return dispatch =>
     request.then(response =>
       dispatch({

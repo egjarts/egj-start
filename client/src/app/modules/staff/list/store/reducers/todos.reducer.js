@@ -21,7 +21,7 @@ const todosReducer = function(state = initialState, action) {
     case Actions.GET_TODOS: {
       return {
         ...state,
-        entities: _.keyBy(action.payload, 'submitter.id'),
+        entities: _.keyBy(action.payload, 'email'),
         searchText: '',
         routeParams: action.routeParams
       };

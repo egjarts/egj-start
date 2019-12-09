@@ -1,5 +1,5 @@
 {
-  "proxy": "http://localhost:8080",
+  "proxy": "https://iqgv1.sse.codesandbox.io/",
   "name": "fuse-react-app",
   "version": "3.2.4",
   "private": true,

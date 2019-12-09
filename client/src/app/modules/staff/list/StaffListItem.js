@@ -57,21 +57,15 @@ function StaffListItem(props) {
         <Typography
           variant='subtitle1'
           className='staffList-title truncate'
-          color={props.staffList.completed ? 'textSecondary' : 'inherit'}
+          color={
+            props.staffList.status !== 'Active' ? 'textSecondary' : 'inherit'
+          }
         >
-          {props.staffList.title}
+          {props.staffList.name.fullName}
         </Typography>
 
         <Typography color='textSecondary' className='staffList-notes truncate'>
-          {_.truncate(
-            props.staffList.originalForm.fields[0].data.replace(
-              /<(?:.|\n)*?>/gm,
-              ''
-            ),
-            {
-              length: 180
-            }
-          )}
+          {Object.keys(props.staffList.services).join(', ')}
         </Typography>
 
         {/* <div className={clsx(classes.labels, 'flex mt-8')}>
