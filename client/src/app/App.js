@@ -1,51 +1,60 @@
-import '@dev';
-import './config/axios.config';
 import React from 'react';
-import { FuseLayout, FuseTheme } from '@fuse';
-import Provider from 'react-redux/es/components/Provider';
 import { Router } from 'react-router-dom';
-import jssExtend from 'jss-extend';
 import history from '@history';
-import { Auth } from './auth';
-import store from './store';
-import { create } from 'jss';
-import {
-  StylesProvider,
-  jssPreset,
-  createGenerateClassName
-} from '@material-ui/styles';
-import { MuiPickersUtilsProvider } from '@material-ui/pickers';
-import MomentUtils from '@date-io/moment';
-import AccessControl from 'app/auth/AccessControl';
+import Layout from './layouts';
+import Staff from './modules/Staff';
 
-const jss = create({
-  ...jssPreset(),
-  plugins: [...jssPreset().plugins, jssExtend()],
-  insertionPoint: document.getElementById('jss-insertion-point')
-});
+import { Provider } from 'react-redux';
 
-const generateClassName = createGenerateClassName();
+import { createStore } from 'redux';
+import Placeholder from './layouts/Placeholder';
+
+//
+const dummyReducer = (
+  state = {
+    fuse: {
+      settings: {
+        current: { customScrollbars: true }
+      }
+    }
+  },
+  action
+) => {
+  return state;
+};
+const store = createStore(dummyReducer);
 
 class App extends React.Component {
   render() {
     return (
-      <StylesProvider jss={jss} generateClassName={generateClassName}>
-        <Provider store={store}>
-          <MuiPickersUtilsProvider utils={MomentUtils}>
-            <Auth>
-              <Router history={history}>
-                <AccessControl>
-                  <FuseTheme>
-                    <FuseLayout />
-                  </FuseTheme>
-                </AccessControl>
-              </Router>
-            </Auth>
-          </MuiPickersUtilsProvider>
-        </Provider>
-      </StylesProvider>
+      <Provider store={store}>
+        <Router history={history}>
+          <Layout routes={routes} />
+        </Router>
+      </Provider>
     );
   }
 }
 
 export default App;
+
+const routes = [
+  {
+    path: '/home/:id',
+    exact: true,
+    component: () => (
+      <Placeholder title='Root Exact' text='Lorem ipsum dolor sit amet ...' />
+    )
+  },
+  {
+    path: '/',
+    exact: true,
+    component: () => <Staff />,
+    routes: [
+      {
+        path: '/staff',
+        component: () => <Staff />
+      }
+    ]
+  }
+];

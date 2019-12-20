@@ -1,0 +1,124 @@
+@import 'bootstrap.min.css';
+@import 'shards.min.css';
+
+/* https://fonts.googleapis.com/css?family=Open+Sans:300,600,800&display=swap&text=pack+my+box+with+five+dozen+liquor+jugs,SPHINX+OF+BLACK+QUARTZ:+JUDGE+MY+VOW.äÄ */
+@font-face {
+  font-family: 'Primary Caption Text';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Open Sans Light'), local('OpenSans-Light'),
+    url(https://fonts.gstatic.com/l/font?kit=mem5YaGs126MiZpBA-UN_r8-UPpQIoq1teqVHmzD-CnIptjKzoVf3F52GwRqkP9HJmgd-X9deu2NZNtAMbzNzR_THoOLpPiwgTqgm4PhQGE7&skey=b33cc031a589c168&v=v17)
+      format('woff2');
+}
+
+@font-face {
+  font-family: 'Primary Caption Text';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: local('Open Sans SemiBold'), local('OpenSans-SemiBold'),
+    url(https://fonts.gstatic.com/l/font?kit=mem5YaGs126MiZpBA-UNirk-UPpQIoq1teqVHmzD-CnIptjKzoVf3F52GwRqkP9HJmgd-X9deu2NZNtAMbzNzR_THoOLpPiwgTqgm4PhQGE7&skey=a162967ffaa5aa08&v=v17)
+      format('woff2');
+}
+
+@font-face {
+  font-family: 'Primary Caption Text';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Open Sans ExtraBold'), local('OpenSans-ExtraBold'),
+    url(https://fonts.gstatic.com/l/font?kit=mem5YaGs126MiZpBA-UN8rs-UPpQIoq1teqVHmzD-CnIptjKzoVf3F52GwRqkP9HJmgd-X9deu2NZNtAMbzNzR_THoOLpPiwgTqgm4PhQGE7&skey=c27b416055908855&v=v17)
+      format('woff2');
+}
+
+/* @import url('https://fonts.googleapis.com/css?family=Titillium+Web:300,400,600&display=swap&text=1234567890monthsdaysyears+MONTHSDAYSYEARS'); */
+@font-face {
+  font-family: 'Secondary Caption Text';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: local('Titillium Web Light'), local('TitilliumWeb-Light'),
+    url(https://fonts.gstatic.com/l/font?kit=NaPDcZTIAOhVxoMyOr9n_E7ffGjEKIlhR5ypgFAN8c24iEen5Qo6Oyj5a6VS4KoYsVh_ffUhK1JsDw&skey=dfcc7191cd1ffbb1&v=v8)
+      format('woff2');
+}
+@font-face {
+  font-family: 'Secondary Caption Text';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Titillium Web Regular'), local('TitilliumWeb-Regular'),
+    url(https://fonts.gstatic.com/l/font?kit=NaPecZTIAOhVxoMyOr9n_E7fRMH0KaxjV46qhVcI8sC3_jvb7AMxPDfkcK5g0JYRuFN4Yug6IA&skey=19ee7c202c5bec48&v=v8)
+      format('woff2');
+}
+@font-face {
+  font-family: 'Secondary Caption Text';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Titillium Web SemiBold'), local('TitilliumWeb-SemiBold'),
+    url(https://fonts.gstatic.com/l/font?kit=NaPDcZTIAOhVxoMyOr9n_E7ffBzCKIlhR5ypgFAN8c24iEen5Qo6Oyj5a6VS4KoYsVh_ffUhK1JsDw&skey=acec4e0d2045640c&v=v8)
+      format('woff2');
+}
+
+#root,
+body,
+html {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Primary Caption Text', 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, sans-serif;
+}
+
+body {
+  font-family: 'Primary Caption Text', 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    'Segoe UI Symbol', 'Noto Color Emoji';
+  font-weight: 400;
+}
+.popover .staff-detail {
+  font-size: 0.875rem;
+}
+
+.border-active {
+  border: 1px solid #28a745 !important;
+}
+.border-inactive {
+  border: 1px solid #17a2b8 !important;
+}
+.border-disabled {
+  /* border: 1px solid #343a40 !important; */
+}
+.border-applied {
+  border: 1px solid #ffb400 !important;
+}
+.border-archived {
+  /* border: 1px solid #007bff !important; */
+}
+
+.card {
+  word-wrap: normal;
+  font-family: 'Primary Caption Text';
+}
+
+.small-label {
+  letter-spacing: 0.05rem;
+  text-transform: uppercase !important;
+  font-size: 0.75rem;
+}

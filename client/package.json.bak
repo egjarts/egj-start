@@ -1,0 +1,14 @@
+{
+  "name": "node-http-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "curl -O https://github.com/egjarts/egj-start/blob/dev/.gitignore && sleep 10s && mv -f package.json package.json.bak && cd / && yarn create react-app client && rm -r -f /client/node_modules && rm -r -f /sandbox/src && sleep 5s && mv -f /client/public /sandbox/public && sleep 5s && mv -f /client/src /sandbox/src && sleep 5s && mv -f /client/*.* /sandbox"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "nodemon": "1.18.4"
+  },
+  "keywords": []
+}
