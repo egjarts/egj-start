@@ -1,27 +1,36 @@
-import log from '../../log';
-import config from '../../config/config';
-import cache, { keys } from '../../middleware/cache/cache';
-import { parse } from 'set-cookie-parser';
-import { post } from 'axios';
-import moment from 'moment';
+import log from "../../log";
+import config from "../../config/config";
+import cache, { keys } from "../../middleware/cache/cache";
+import { parse } from "set-cookie-parser";
+import { post } from "axios";
+import moment from "moment";
+import util from "util";
 
 // authenticate to submittable
 export default async function(forceRefresh = false) {
+  log.warn(config.submittable.serviceAccount);
+
   // get the authentication token from cache
   let token = cache.get(keys.submittable.authentication.token);
-
   // if it is missing or expired, or if forceRefresh = true,
   // sign in to Submittable and get a new token
   if (!token || forceRefresh) {
     const data = config.submittable.serviceAccount;
+
     const smm = await post(
-      'https://egjpress.submittable.com/api/account/signin',
+      "https://egjpress.submittable.com/api/account/signin",
       data
-    ).then(response => {
-      return parse(response, { map: true }).smm;
-    });
+    )
+      .then(response => {
+        log.trace(response);
+        return parse(response, { map: true }).smm;
+      })
+      .catch(error => {
+        log.warn(`could not authenticate with ${data}`);
+        log.warn(error);
+      });
     token = smm.value;
-    const ttl = moment(smm.expires).diff(moment(), 'seconds') - 600;
+    const ttl = moment(smm.expires).diff(moment(), "seconds") - 600;
     log.trace(
       `Caching Submittable authentication token for ${ttl}s (${moment()
         .seconds(ttl)

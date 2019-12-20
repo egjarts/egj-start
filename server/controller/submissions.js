@@ -1,6 +1,6 @@
-import log from '../log';
-import submittable from '../integrations/submittable/request';
-import firebase from 'firebase-admin';
+import log from "../log";
+import submittable from "../integrations/submittable/request";
+import firebase from "firebase-admin";
 
 const submissions = {
   query: async function(user, queryOptions) {
@@ -12,15 +12,17 @@ const submissions = {
 
     return (
       submittable
-        .get('https://api.submittable.com/v1/submissions', {
+        .get("https://api.submittable.com/v1/submissions", {
           params: submittableQuery
         })
         // TODO: walk through paginated results
         .then(response => {
-          log.trace(response.data, 'Response from Submittable');
+          log.trace(response.data, "Response from Submittable");
           return response.data.items;
         })
-        .catch(error => log.error(error.response.data))
+        .catch(error =>
+          log.error(error.response.data, "Error from submittable")
+        )
     );
   }
 };

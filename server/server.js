@@ -1,28 +1,30 @@
-import config from './config/config';
-import log from './log';
-import authenticate from './middleware/authentication/authenticate';
-import firebase from 'firebase-admin';
-import 'firebase';
+import config from "./config/config";
+import log from "./log";
+import authenticate from "./middleware/authentication/authenticate";
+import firebase from "firebase-admin";
+import "firebase";
 
-firebase.initializeApp();
+import express from "express";
+import cors from "cors";
+import { json } from "body-parser";
 
-import express from 'express';
-import cors from 'cors';
-import { json } from 'body-parser';
+firebase.initializeApp({
+  credential: firebase.credential.cert(config.google.serviceAccount.credentials)
+});
 
 var app = express();
 app.use(cors());
 app.use(json());
 
-app.use('/auth', authenticate, require('./router/auth'));
-app.use('/api', authenticate, require('./router/api'));
+app.use("/auth", authenticate, require("./router/auth"));
+app.use("/api", authenticate, require("./router/api"));
 
 app.use([handleError]);
 
-const port = process.env['PORT'] || 8080;
+const port = process.env["PORT"] || 8080;
 app.listen(port);
-log.info({ port }, 'Server restarted');
-log.trace({ env: process.env, config }, 'Loaded environment configuration');
+log.info({ port }, "Server restarted");
+log.trace({ env: process.env, config }, "Loaded environment configuration");
 
 function handleError(error, request, response, next) {
   const status = error.status || 500;

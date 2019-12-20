@@ -1,14 +1,16 @@
-import log from '../../log';
+import log from "../../log";
+import cache, { keys } from "../../middleware/cache/cache";
 import getAuthToken, {
   ApiToken
-} from '../../integrations/submittable/authenticate';
-import { create } from 'axios';
-import { parse } from 'set-cookie-parser';
-import qs from 'qs';
+} from "../../integrations/submittable/authenticate";
+import { create } from "axios";
+import { parse } from "set-cookie-parser";
+import qs from "qs";
+import moment from "moment";
 
 const submittableRequest = create({
   paramsSerializer: function(params) {
-    return qs.stringify(params, { arrayFormat: 'repeat' });
+    return qs.stringify(params, { arrayFormat: "repeat" });
   }
 });
 
@@ -16,16 +18,23 @@ submittableRequest.interceptors.request.use(async function(request) {
   const tokenType = getTokenType(request.url);
 
   switch (tokenType) {
-    case TokenType.API:
-      request.auth = { username: ApiToken, password: ApiToken };
-      break;
     case TokenType.JWT:
       await getAuthToken().then(token => {
-        request.headers['cookie'] = `smm=${token}`;
+        log.info({ token }, "using JWT");
+        request.headers["cookie"] = `smm=${token}`;
       });
       break;
+    case TokenType.API:
+    default:
+      log.info({ ApiToken }, "using API token");
+      request.headers = {
+        ...request.headers,
+        Authorization:
+          "Basic " + Buffer.from(`${ApiToken}:${ApiToken}`).toString("base64")
+      };
+      log.info(request.auth);
+      break;
   }
-
   return request;
 });
 
@@ -33,7 +42,7 @@ submittableRequest.interceptors.response.use(async function(response) {
   const smm = parse(response, { map: true }).smm;
   if (smm) {
     const token = smm.value;
-    const ttl = moment(smm.expires).diff(moment(), 'seconds') - 600;
+    const ttl = moment(smm.expires).diff(moment(), "seconds") - 600;
 
     log.trace(
       `Caching Submittable authentication token for ${ttl}s (${moment()
@@ -53,22 +62,23 @@ export default submittableRequest;
 
 // determine whether this request needs an API token or a JWT
 const TokenType = {
-  API: 'API',
-  JWT: 'JWT'
+  API: "API",
+  JWT: "JWT"
 };
 
 const getTokenType = url => {
-  if (url.startsWith('https://api.submittable.com')) return TokenType.API;
+  if (url.startsWith("https://api.submittable.com")) return TokenType.API;
 
   return TokenType.JWT;
 };
 
 submittableRequest.interceptors.request.use(async function(request) {
-  log.trace(request, 'Request to submittable');
+  log.info(request, "Request to submittable");
+  log.info(request.headers, "Headers for request to submittable");
   return request;
 });
 
 submittableRequest.interceptors.response.use(async function(response) {
-  log.trace(response, 'Response from submittable');
+  log.trace(response, "Response from submittable");
   return response;
 });

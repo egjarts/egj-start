@@ -2,13 +2,16 @@ import _ from 'lodash';
 import log from '../log';
 import { isArray } from 'lodash';
 import firebase from 'firebase-admin';
-require('firebase');
-require('@google-cloud/firestore');
+
 import Can from '../middleware/AccessControl/AccessControl';
 import submissions from './submissions';
 import { google } from 'googleapis';
 import Submittable from '../integrations/submittable/request';
 import Slack from '../integrations/slack/webClient';
+import config from '../config/config';
+
+require('firebase');
+require('@google-cloud/firestore');
 
 /*const axiosP = require('axios');
 
@@ -19,6 +22,13 @@ axios.interceptors.request.use(request => {
 }); */
 
 export async function query(user, queryOptions) {
+  const queryDefaults = {
+    where: [['status', '==', 'Active']]
+  };
+
+  if (!queryOptions.where) queryOptions.where = queryDefaults.where;
+  if (!queryOptions.orderBy) queryOptions.orderBy = queryDefaults.orderBy;
+
   const permissions = {
     readAny: Can(user).read('staff'),
     readOwn: Can(user).readOwn('staff'),
@@ -27,26 +37,6 @@ export async function query(user, queryOptions) {
     readArchived: Can(user).read('staff:archived')
   };
 
-  const firestore = firebase.firestore();
-
-  return firestore
-    .collection('staff')
-    .orderBy('status')
-    .orderBy('name.familyName')
-    .get()
-    .then(snapshot => {
-      log.trace(
-        {
-          empty: snapshot.empty,
-          metadata: snapshot.metadata,
-          size: snapshot.size
-        },
-        "Here's the snapshot from Firestore"
-      );
-
-      return snapshot.docs.map(document => document.data());
-    });
-
   const read = permissions.readAny.granted
     ? permissions.readAny
     : permissions.readOwn;
@@ -54,19 +44,24 @@ export async function query(user, queryOptions) {
   // TODO: return some kind of 403 error instead
   if (!read.granted) return null;
 
-  let query = firebase.firestore().collection('staff');
+  const firestore = firebase.firestore();
+  let query = firestore.collection('staff');
 
   // if the user only has permission to read their
   // own staff record, return it and ignore
   // any `where` clause
   if (read === permissions.readOwn) {
-    query = query.where(_firestore.FieldPath.documentId(), '==', user.uid);
+    query = query.where(firestore.FieldPath.documentId(), '==', user.uid);
   } else {
     if (queryOptions.where) {
-      query = where.reduce(
-        (query, condition) => query.where(...condition),
-        query
-      );
+      query = queryOptions.where.reduce((query, condition) => {
+        log.warn({ ...parseCondition(condition) });
+        return query.where(...parseCondition(condition));
+      }, query);
+
+      if (queryOptions.orderBy) {
+        query = query.orderBy(queryOptions.orderBy);
+      }
     }
   }
 
@@ -78,14 +73,21 @@ export async function query(user, queryOptions) {
     query = query.select(...select);
   }
 
-  query.get().then(invitation => {
-    return query.empty ? null : null;
-  });
+  return query
+    .get()
+    .then((snapshot) => {
+      return snapshot.docs
+        .filter((document) => !document.isHidden)
+        .map((document) => document.data());
+    })
+    .catch((error) => log.error(error, 'Firestore error'));
 }
 
 export async function updateCache() {
   // get everyone from G Suite
   const GoogleAuth = new google.auth.GoogleAuth({
+    credentials: config.google.serviceAccount.credentials,
+    projectId: config.google.serviceAccount.credentials.project_id,
     // Scopes can be specified either as an array or as a single, space-delimited string.
     scopes:
       'https://www.googleapis.com/auth/admin.directory.user https://www.googleapis.com/auth/admin.directory.group'
@@ -96,14 +98,22 @@ export async function updateCache() {
 
   const service = google.admin('directory_v1');
 
-  const staffUserAccounts = await service.users.list({
-    auth: auth,
-    customer: 'C0430mqjw', // TODO: Move to config
-    query: { includeInGlobalAddressList: true },
-    maxResults: 500
-  }); // todo: handle multiple pages of staff results
+  const staffUserAccounts = await service.users
+    .list({
+      auth: auth,
+      customer: 'C0430mqjw', // TODO: Move to config
+      query: { includeInGlobalAddressList: true },
+      maxResults: 1
+    })
+    .catch((err) => {
+      return { error: err };
+    }); // todo: handle multiple pages of staff results
+  if (staffUserAccounts.error) {
+    log.error(staffUserAccounts.error);
+    return null;
+  }
 
-  let staff = staffUserAccounts.data.users.map(user => {
+  let staff = staffUserAccounts.data.users.map((user) => {
     return {
       name: {
         givenName: user.name.givenName || null,
@@ -135,18 +145,18 @@ export async function updateCache() {
     slackGuestStaff(staff),
     submittableGuestStaff(staff),
     submittableProspects(staff)
-  ]).then(data => data.flat());
+  ]).then((data) => data.flat());
 
   log.trace({ guests }, `Found ${guests.length} guest accounts`);
-
+  return staff.concat(guests);
   const firestore = firebase.firestore();
-  return staff.concat(guests).map(data => {
+  return staff.concat(guests).map((data) => {
     return firestore
       .collection('staff')
       .where('email', '==', data.email)
       .limit(1)
       .get()
-      .then(snapshot => {
+      .then((snapshot) => {
         const size = snapshot.size || 0;
         log.trace(
           { size, snapshot, email: data.email },
@@ -160,7 +170,7 @@ export async function updateCache() {
             .get();
         } else {
           log.trace({ email: data.email }, 'Updating {email} in firestore');
-          return snapshot.docs.reduce(document =>
+          return snapshot.docs.reduce((document) =>
             document.ref
               .update(
                 {
@@ -172,27 +182,27 @@ export async function updateCache() {
           );
         }
       })
-      .then(document => {
+      .then((document) => {
         log.trace(
           { document, type: typeof document },
           'Output document from Firestore'
         );
         return document.ref.get();
       })
-      .catch(error => log.error(error));
+      .catch((error) => log.error(error));
   });
 }
 
-const slackGuestStaff = async staff => {
+const slackGuestStaff = async (staff) => {
   const slackUsers = await Slack.web.users.list();
   return slackUsers.members
-    .filter(user => {
+    .filter((user) => {
       if (!user.profile.email) return false;
 
-      const matched = staff.findIndex(item =>
+      const matched = staff.findIndex((item) =>
         item.dataSources.google.emails.some(
-          email =>
-            email.address.toLowerCase() == user.profile.email.toLowerCase()
+          (email) =>
+            email.address.toLowerCase() === user.profile.email.toLowerCase()
         )
       );
       if (matched >= 0) {
@@ -218,7 +228,7 @@ const slackGuestStaff = async staff => {
       }
       return true;
     })
-    .map(user => {
+    .map((user) => {
       return {
         name: {
           givenName: user.profile.first_name || null,
@@ -248,19 +258,19 @@ const slackGuestStaff = async staff => {
     });
 };
 
-const submittableProspects = async staff => {
+const submittableProspects = async (staff) => {
   // get prospects from Submittable
   const submissionQuery = {
     categories: [58031, 74474]
   };
-  return submissions.query(null, submissionQuery).then(staffSubmissions => {
+  return submissions.query(null, submissionQuery).then((staffSubmissions) => {
     return staffSubmissions
-      .filter(submission => {
+      .filter((submission) => {
         // try to find the prospect in G Suite by personal email
-        const matched = staff.findIndex(item =>
+        const matched = staff.findIndex((item) =>
           item.dataSources.google.emails.some(
-            email =>
-              email.address.toLowerCase() ==
+            (email) =>
+              email.address.toLowerCase() ===
               submission.submitter.email.toLowerCase()
           )
         );
@@ -278,7 +288,7 @@ const submittableProspects = async staff => {
         }
         return true;
       })
-      .map(submission => {
+      .map((submission) => {
         const firstNameAndMiddle = [
           submission.submitter.first_name || '',
           submission.submitter.middle_initial || ''
@@ -316,18 +326,19 @@ const submittableProspects = async staff => {
   });
 };
 
-const submittableGuestStaff = staff => {
+const submittableGuestStaff = (staff) => {
   return Submittable.get('https://egjpress.submittable.com/api/team/')
-    .then(submittableTeam => {
+    .then((submittableTeam) => {
       // Any staff in Submittable who are not in Google get a status of "Guest"
       return submittableTeam.data.team
-        .filter(user => {
+        .filter((user) => {
           if (!user.email) return false;
 
           // map the submittable account to the G Suite account
-          const matched = staff.findIndex(item =>
+          const matched = staff.findIndex((item) =>
             item.dataSources.google.emails.some(
-              email => email.address.toLowerCase() == user.email.toLowerCase()
+              (email) =>
+                email.address.toLowerCase() === user.email.toLowerCase()
             )
           );
 
@@ -360,7 +371,7 @@ const submittableGuestStaff = staff => {
           );
           return true;
         })
-        .map(user => {
+        .map((user) => {
           return {
             name: {
               givenName: null,
@@ -390,5 +401,15 @@ const submittableGuestStaff = staff => {
           };
         });
     })
-    .catch(err => log.error(err));
+    .catch((err) => log.error(err));
+};
+
+const parseCondition = (condition) => {
+  if (_.isArray(condition)) return condition;
+  const parsed = Object.entries(condition)[0];
+
+  const operator = _.isArray(parsed[1]) ? 'in' : '==';
+
+  parsed.splice(1, 0, operator);
+  return parsed;
 };
