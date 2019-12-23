@@ -6,6 +6,8 @@ node_modules
 
 # production
 /build
+/client/build
+/server/build
 
 # development
 .vscode/
